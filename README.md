@@ -148,6 +148,42 @@ Hot path threads avoid the global allocator, locks, and complex runtime work.
 4. Work through `interview-prep/` in parallel or after core topics.
 5. Use `resources/curated_reading.md` for deep dives.
 
+## Additional Branches for Deeper Preparation
+
+This repository has two specialized branches that go beyond the core 9 topics:
+
+### `interview-questionnaire` branch
+A dedicated deep-dive for interview readiness and advanced knowledge:
+
+- **HFT Terminology Glossary** — 30+ terms with definitions, system impact, and analogies
+- **Data Structures** — Common + HFT-specific (order books, seqlocks, ring buffers, etc.) with trade-off tables
+- **Core Questions** — In-depth answers for concurrency, market data, system design
+- **Tricky Questions** — Advanced scenarios that separate strong candidates
+- **Practice Scenarios** — Whiteboard-style exercises
+- **Quick Reference Cheat Sheet**
+
+Check it out with:
+```bash
+git checkout interview-questionnaire
+```
+
+### `rust-excellence` branch
+Focused on becoming exceptional at writing high-performance, correct Rust for trading systems:
+
+- Ownership & lifetimes in real trading contexts
+- Atomics and memory ordering mastery
+- Allocation-free hot path techniques
+- Zero-copy patterns with `bytes`
+- Performance tooling (perf, asm, histograms, etc.)
+- Runnable focused examples
+
+```bash
+git checkout rust-excellence
+```
+
+These branches follow the same teaching style as the main content.
+
+
 ## How to Use the Demos
 
 Most simple demos are single `.rs` files. Add the listed dependencies to a Cargo.toml and run.
