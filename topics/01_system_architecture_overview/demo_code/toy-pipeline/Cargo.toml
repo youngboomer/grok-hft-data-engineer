@@ -1,0 +1,15 @@
+[package]
+name = "toy-pipeline"
+version = "0.1.0"
+edition = "2021"
+authors = ["grok-hft-data-engineer"]
+description = "Minimal hot/cold path separation demo for ultra-low-latency trading concepts"
+
+[dependencies]
+# crossbeam-channel gives us a high-quality bounded SPSC/MPSC queue.
+# In real systems you would often use this (or a custom lock-free ring)
+# for intent passing between strategy and OMS.
+crossbeam-channel = "0.5"
+
+# We use only std atomics for the market data publication path to demonstrate
+# non-blocking best-bid/ask publishing.
