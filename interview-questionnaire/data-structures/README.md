@@ -108,6 +108,20 @@ Common options:
 
 **For most Binance spot market making**: A sorted `SmallVec` or `Vec` for the active top levels + a map (or second structure) for full depth is common.
 
+### Additional HFT-Specific Structures Worth Knowing
+
+#### Latency / Sample Ring Buffer
+A fixed-size ring buffer (overwriting) used to store recent latency samples, recent trades, or recent decisions. Zero allocation after initialization. Read on a cold path for analysis.
+
+#### Atomic Histogram
+Array of `AtomicUsize` counters, one per bucket (often power-of-two). Updates are simple `fetch_add(1)`. Reset and percentile calculation happen off the hot path. One of the best ways to get real p99 numbers with almost zero overhead.
+
+#### In-Flight Orders Map
+A map from client order ID (or a small integer ID) to current order state. Usually owned exclusively by the OMS thread. Reconciliation after reconnect must treat this as the source of truth and merge with exchange responses carefully.
+
+#### Per-Symbol Risk / Limit Snapshot
+Small arrays or structs holding current position, max allowed, current rate limit tokens, etc. These are read on nearly every quote decision and must be extremely cheap.
+
 ### PriceLevel Struct Design
 
 ```rust

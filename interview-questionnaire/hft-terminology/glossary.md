@@ -195,4 +195,71 @@ Market makers want to be makers almost all the time.
 
 ---
 
+## Additional Important Terms
+
+### Imbalance
+**Definition**: Difference between buy and sell interest at the top levels (or weighted across several levels). Often expressed as `(bid_qty - ask_qty) / (bid_qty + ask_qty)`.
+
+**Why it matters**: Many market making and momentum strategies use imbalance as a short-term directional signal. Fast, accurate imbalance calculation can be a real edge.
+
+**System Impact**: Should be computed incrementally or on a very small top-N set. Scanning the whole book on every update adds latency.
+
+### Toxic Flow
+**Definition**: Order flow that is informed or high-frequency in a way that is adverse to your quotes (e.g., large one-sided aggressive orders, or flow that consistently hits your quotes when the market is about to move).
+
+**Detection ideas**: Rapid one-sided fills, unusual imbalance before hits, specific counterparties (if visible), post-trade price movement analysis.
+
+**Impact**: Requires fast reaction — widening spreads, pulling quotes, or temporary pause in quoting for that symbol.
+
+### Reconciliation
+**Definition**: Periodically comparing your internal state (positions, open orders, fills) against the exchange's view via REST or other means.
+
+**Why critical**: WebSocket streams can drop messages. Reconciliation is the safety net that prevents slow drift into incorrect inventory or missed fills.
+
+**Trade-off**: How often to reconcile (too often = rate limit and latency cost; too rarely = long periods of incorrect state).
+
+### Heartbeat / Keep-alive
+**Definition**: Periodic messages (ping/pong at WebSocket level, or application-level heartbeats) to detect dead connections quickly.
+
+**In Binance context**: You must respond to server pings, and you should send pings or rely on the protocol to detect silent disconnects. Application-level heartbeats on user data streams are also common.
+
+**Impact on design**: A missed heartbeat should trigger reconnect logic on the cold path without panicking the hot feed thread.
+
+### Backpressure
+**Definition**: Mechanisms to slow down or drop work when a consumer cannot keep up with a producer.
+
+**In HFT**:
+- A slow strategy should not slow down the feed.
+- A full intent queue to OMS should cause the strategy to drop or delay decisions rather than let queues grow unbounded.
+- Good backpressure is explicit and bounded.
+
+**Bad version**: Unbounded channels that grow until the machine runs out of memory during a burst.
+
+### Idempotent Operation
+**Definition**: An operation that can be performed multiple times without changing the result beyond the first application.
+
+**In trading**: Placing an order with the same client order ID should be idempotent on the exchange side. Reconciliation after reconnect must also be idempotent.
+
+### Cache Line
+**Definition**: The smallest unit of data that can be transferred between CPU and memory (typically 64 bytes on x86).
+
+**Relevance**: False sharing, alignment of hot atomics, and data layout all revolve around cache lines. Accessing data on different cache lines from different cores is much cheaper than fighting over the same one.
+
+### NUMA (Non-Uniform Memory Access)
+**Definition**: In multi-socket machines, memory attached to one CPU socket is faster to access from cores on that socket than from the other.
+
+**Impact**: Thread pinning and memory allocation should prefer the local NUMA node for hot threads and their data.
+
+### Adverse Selection (expanded)
+**Definition** (recap): Being filled when the market is about to move against you because your quote was stale or too wide relative to the new information.
+
+**Modern forms**:
+- Latency arbitrage (someone faster saw the update first).
+- Market makers on other venues adjusting faster.
+- Informed flow reacting to news or on-chain signals.
+
+**Defense**: Speed + correctness of market data + good inventory management + ability to quickly pull or skew quotes.
+
+---
+
 Use this glossary as your foundation. Every time you see a term in a question, come back here first.
