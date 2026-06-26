@@ -19,9 +19,19 @@ Shows the cost difference of cloning a Vec vs using SmallVec in a tight loop.
 ```bash
 cargo run --release --example smallvec_vs_vec
 ```
-(when placed in an examples/ directory of a Cargo project)
+
+## preallocated_book.rs
+
+Shows a pre-sized SmallVec used for maintaining top levels with incremental updates (no allocations in the update path after init).
+
+## unsafe_indexing.rs
+
+Compares safe indexing (with bounds checks) vs `get_unchecked` in a very hot summation loop. Demonstrates when (and why) you might reach for a small amount of unsafe after proving safety.
+
+**Important**: Only do this after measurement shows the bounds checks matter, and wrap it safely.
 
 Experiment ideas:
 - Change N and ITERS.
 - Add actual work between iterations.
 - Measure with perf.
+- Run under `cargo asm` to see the difference in generated code.
