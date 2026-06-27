@@ -1,6 +1,6 @@
 # HFT Data Management & Data Pipelines Learning Path
 
-This branch (`hft-data-pipelines`) extends the core repo with focused, deep material on data management and pipelines for HFT trading roles.
+This document (and the associated topics 10–14) extend the core repo with focused, deep material on data management and pipelines for HFT trading roles.
 
 ## Philosophy (same as rest of repo)
 - Newcomer friendly with clear explanations and analogies
@@ -47,9 +47,10 @@ This branch (`hft-data-pipelines`) extends the core repo with focused, deep mate
 See individual topic `gaps_and_nice_to_haves.md` and the dedicated one in topic 11.
 
 ## How to Use
-- Read the topic READMEs in order
-- Run all demos with `--release`
-- Experiment as suggested in each demo's README
-- Build on top (e.g., wire the ring buffer from 11 into the pipeline in 13)
+- Read the topic READMEs in order (10 → 14 recommended).
+- Run all demos with `--release`.
+- Experiment as suggested in each demo's README.
+- Build on top (e.g., wire the ring buffer from topic 11 into the pipeline in topic 13).
+- Cross-reference with the main `roadmap_hft_de.md` for full context across the repo.
 
 This gives a dedicated newcomer a complete, practical foundation for HFT data engineering roles while going deep enough to impress in interviews and contribute meaningfully.

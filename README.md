@@ -140,48 +140,24 @@ Hot path threads avoid the global allocator, locks, and complex runtime work.
 ## Recommended Study Order
 
 1. Read **this** README completely.
-2. Go through topics in order: 01 → 09.
+2. Go through topics in order: 01 → 14.
 3. For each topic:
    - Read the full `README.md` (Why → What → How → Applicability + diagrams + tables).
    - Study and run the demo(s).
    - Try the suggested experiments.
 4. Work through `interview-prep/` in parallel or after core topics.
 5. Use `resources/curated_reading.md` for deep dives.
+6. Review `roadmap_hft_de.md` for a complete learning path tailored to HFT Data Engineer roles (data management & pipelines focus).
 
-## Additional Branches for Deeper Preparation
+## Additional Content for Deeper Preparation
 
-This repository has two specialized branches that go beyond the core 9 topics:
+This repository includes specialized content that goes beyond the core topics:
 
-### `interview-questionnaire` branch
-A dedicated deep-dive for interview readiness and advanced knowledge:
+- **`roadmap_hft_de.md`** — A comprehensive roadmap for pursuing HFT Data Engineer skills, with recommended order, practice rhythm, and project ideas.
+- **`HFT_DATA_PIPELINES_PLAN.md`** — Detailed guidance specifically for the data pipelines and management topics (10–14).
+- **`LEARNING_STYLE.md`** — Explains the preferred learning and explanation approach used throughout the repo.
 
-- **HFT Terminology Glossary** — 30+ terms with definitions, system impact, and analogies
-- **Data Structures** — Common + HFT-specific (order books, seqlocks, ring buffers, etc.) with trade-off tables
-- **Core Questions** — In-depth answers for concurrency, market data, system design
-- **Tricky Questions** — Advanced scenarios that separate strong candidates
-- **Practice Scenarios** — Whiteboard-style exercises
-- **Quick Reference Cheat Sheet**
-
-Check it out with:
-```bash
-git checkout interview-questionnaire
-```
-
-### `rust-excellence` branch
-Focused on becoming exceptional at writing high-performance, correct Rust for trading systems:
-
-- Ownership & lifetimes in real trading contexts
-- Atomics and memory ordering mastery
-- Allocation-free hot path techniques
-- Zero-copy patterns with `bytes`
-- Performance tooling (perf, asm, histograms, etc.)
-- Runnable focused examples
-
-```bash
-git checkout rust-excellence
-```
-
-These branches follow the same teaching style as the main content.
+The new topics 10–14 focus on modern HFT data management and pipelines (architecture, advanced Rust data structures, tick storage, lock-free streaming, and analytical pipelines using Arrow/Polars).
 
 
 ## How to Use the Demos
@@ -220,29 +196,41 @@ Always prefer `--release`. Many examples pin cores or use specific allocators th
 ```
 grok-hft-data-engineer/
 ├── README.md                          # This file
+├── roadmap_hft_de.md                  # Full learning roadmap for HFT Data Engineer roles
+├── HFT_DATA_PIPELINES_PLAN.md         # Detailed plan for data pipelines topics
+├── LEARNING_STYLE.md                  # How topics are structured for best learning
 ├── topics/
 │   ├── 01_system_architecture_overview/
-│   ├── 02_rust_for_ultra_low_latency/
 │   ├── ...
-│   └── 09_performance_obs_testing_python_tooling/
+│   ├── 09_performance_obs_testing_python_tooling/
+│   ├── 10_hft_data_pipelines_architecture/
+│   ├── 11_advanced_rust_data_structures/
+│   ├── 12_tick_data_management/
+│   ├── 13_lockfree_stream_processing/
+│   └── 14_analytical_data_pipelines/
 ├── interview-prep/
 │   ├── questions_by_topic.md
 │   ├── rigorous_practice_exercises.md
 │   └── mock_scenarios.md
-└── resources/
-    └── curated_reading.md
+├── resources/
+│   └── curated_reading.md
+└── resume-claims/                     # Interview strategy and skill deep-dives
 ```
 
-Each topic directory contains a detailed `README.md` and a `demo_code/` folder with runnable examples.
+Each topic directory contains a detailed `README.md` and a `demo_code/` folder with runnable examples (Rust + Python where appropriate).
 
 ## Getting Started Right Now
 
 ```bash
 cd grok-hft-data-engineer
-# Read the first topic
+
+# Best starting point: the full roadmap
+cat roadmap_hft_de.md
+
+# Or jump straight into the first topic
 cat topics/01_system_architecture_overview/README.md
 
-# Example: run a simple Rust demo (once you have Rust)
+# Example: run a simple Rust demo (always use --release for realistic numbers)
 # cd topics/02_rust_for_ultra_low_latency/demo_code/...
 # cargo run --release
 ```
@@ -253,32 +241,19 @@ Let's begin.
 
 ---
 
-## New Focus Area on This Branch: HFT Data Management & Data Pipelines
+## New Topics: HFT Data Management & Data Pipelines
 
-This branch (`hft-data-pipelines`) extends the repository with deep material on **data management and data pipelines** for HFT trading roles.
+Topics 10–14 extend the repository with deep material focused on **data management and data pipelines** for HFT trading roles:
 
-We cover:
-- High-performance data structures fully (or near-fully) implemented in Rust (with references to production crates)
-- Lock-free and zero-copy patterns for real pipelines
-- Tick data reconstruction, storage, and replay
-- Analytical layers using Arrow/Polars
-- Brief explanations of important non-Rust topics (FPGA, DPDK, Aeron, etc.)
+- **10. HFT Data Pipelines Architecture** — End-to-end design, hot/cold path separation, modern tech landscape.
+- **11. Advanced Rust Data Structures** — Ring buffers, lock-free LOBs, seqlocks, object pools (with from-scratch implementations + crate references).
+- **12. Tick Data Management** — Storage, replay, snapshot+delta, Parquet/Arrow persistence.
+- **13. Lock-free Stream Processing** — Disruptor-style multi-consumer pipelines.
+- **14. Analytical Data Pipelines** — Arrow, Polars (lazy), DataFusion integration between Rust hot path and Python analytics.
 
-All content follows the same philosophy as the rest of the repo:
-- Clear "Why it matters", "How it works", analogies for newcomers
-- Tables, ASCII diagrams
-- Runnable Rust (and Python where helpful) examples
-- Keep technical terms for mental mapping while explaining them simply
+These follow the same philosophy as the rest of the repo (clear explanations with analogies, hot vs cold path emphasis, tables, diagrams, runnable demos in Rust + Python).
 
-Start with `topics/11_advanced_rust_data_structures/README.md` and its `demo_code/`.
-
-See also `topics/11_advanced_rust_data_structures/gaps_and_nice_to_haves.md` for the bigger picture.
-
-### New Topics Added (hft-data-pipelines branch)
-- 10. HFT Data Pipelines Architecture
-- 11. Advanced Rust Data Structures (ring buffers, LOBs, pools — deep from-scratch + references)
-- 12. Tick Data Management and Storage
-- 13. Lock-free Stream Processing (Disruptor-style)
-- 14. Analytical Data Pipelines (Arrow + Polars)
-
-Each includes runnable Rust (and Python) demos, full explanations, and coverage of gaps (FPGA, DPDK, etc. explained briefly).
+See:
+- `roadmap_hft_de.md` for the full recommended path.
+- `HFT_DATA_PIPELINES_PLAN.md` for details on these topics.
+- `topics/11_advanced_rust_data_structures/gaps_and_nice_to_haves.md` for non-Rust topics (FPGA, DPDK, etc.) and future extensions.

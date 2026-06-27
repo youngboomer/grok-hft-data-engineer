@@ -221,7 +221,7 @@ See the demo folders for detailed READMEs and suggested experiments (measure und
 
 This topic focuses on in-memory, single-machine, CPU-centric structures.
 
-Gaps we will address in follow-up topics in this branch:
+Gaps addressed in follow-up topics (12–14):
 - Full end-to-end pipeline architecture (topic 10).
 - Real tick data storage, compression, and replay engines (topic 12).
 - Complete lock-free multi-producer / multi-consumer streaming (topic 13).
