@@ -15,11 +15,15 @@ This follows the same rigorous learning philosophy used throughout the repositor
 
 ## How to Use This Branch
 
-1. For each major area, read the detailed notes.
-2. Run any code examples (prefer release / optimized modes).
-3. Practice explaining concepts out loud using the "Why → What → How → Tradeoffs" structure.
-4. Prepare 2-3 personal stories per major skill (a project where you used it, a problem you solved, a mistake you learned from).
-5. Review the "Interview Questions & Strong Answers" sections.
+1. For each major area, read the detailed notes (Why → What → How → Applicability).
+2. Run any code examples (prefer `--release` / optimized modes for realistic latency numbers).
+3. Study the **Practical HFT Use Cases & Scenarios** (added for rich interview stories) and ASCII diagrams.
+4. Practice explaining out loud using the "Why → What → How → Tradeoffs" structure + hot/cold path distinctions.
+5. Prepare 2-3 personal STAR stories per skill using the template in `INTERVIEW-STRATEGY.md` (Situation, Task, Action with metrics, Result, Tradeoffs, "If I did it again...").
+6. Do the hands-on exercises and build 1-2 end-to-end case studies.
+7. Review "Interview Questions & Strong Answers" + the scenario bank in `INTERVIEW-STRATEGY.md`.
+
+**Pro tip**: Treat this like HFT prep — focus on tail latency, correctness under burst load, and data fidelity. Always quantify (p99, messages/sec, error rates).
 
 ## Categories (Deep Dives)
 
@@ -34,6 +38,8 @@ This follows the same rigorous learning philosophy used throughout the repositor
 
 Additional:
 - `INTERVIEW-STRATEGY.md` — How to turn this knowledge into compelling interview stories and resume claims
+- `case-studies/` — Rich end-to-end HFT data pipeline examples with diagrams and metrics
+- `exercises.md` — Hands-on build challenges to generate real artifacts and stories
 
 ## Resume Claim Strategy
 

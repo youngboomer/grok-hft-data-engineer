@@ -104,3 +104,20 @@ Small, reliable, zero-config. Surprisingly powerful for many workloads.
 
 **Interview Claim Example**:
 "I designed a hybrid storage strategy using PostgreSQL for transactional state, ClickHouse for high-cardinality analytics, and DuckDB for ad-hoc transformations inside our Python data jobs. This gave us both strong consistency where needed and sub-second analytical queries on terabytes of data."
+
+## Practical HFT Use Cases & Scenarios
+
+### Scenario: Hybrid Storage for Tick Data + Real-time Positions
+**Context**: Need fast appends for raw ticks, low-latency reads for current positions/inventory during trading, and heavy analytical queries for research (e.g., "volume profile over last 10k ticks").
+
+**Approach**:
+- Hot: In-memory structures (from topic 11) + Redis for latest positions (sub-ms reads).
+- Warm appends: QuestDB or ClickHouse for time-series ticks (high ingest, fast time-range queries).
+- Analytical: DuckDB (embedded, Arrow-native) inside Python jobs for ad-hoc or Polars jobs; PostgreSQL for transactional order/position state with proper indexing.
+- Dedup on ingest using sequence + bloom or last-seen map.
+
+**Hot/Cold**: Hot reads (current best + position) must be lock-free and in-memory. Cold queries (historical analysis) can scan columnar storage.
+
+**Metrics**: 50k ticks/sec ingest with <5ms p99 query for last 1k ticks on a symbol.
+
+**Tradeoff**: Chose ClickHouse/QuestDB over Timescale for raw speed on appends; accepted eventual consistency between hot cache and DB for the analytical layer.
