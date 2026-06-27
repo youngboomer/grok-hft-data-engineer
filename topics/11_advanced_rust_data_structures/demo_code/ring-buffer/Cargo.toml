@@ -1,0 +1,8 @@
+[package]
+name = "hft-ring-buffer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# We use no external crates in the core implementation to keep it from-scratch.
+# For benchmarking we could add criterion later.

@@ -250,3 +250,26 @@ cat topics/01_system_architecture_overview/README.md
 Welcome to the craft of building systems where microseconds matter and correctness is non-negotiable.
 
 Let's begin.
+
+---
+
+## New Focus Area on This Branch: HFT Data Management & Data Pipelines
+
+This branch (`hft-data-pipelines`) extends the repository with deep material on **data management and data pipelines** for HFT trading roles.
+
+We cover:
+- High-performance data structures fully (or near-fully) implemented in Rust (with references to production crates)
+- Lock-free and zero-copy patterns for real pipelines
+- Tick data reconstruction, storage, and replay
+- Analytical layers using Arrow/Polars
+- Brief explanations of important non-Rust topics (FPGA, DPDK, Aeron, etc.)
+
+All content follows the same philosophy as the rest of the repo:
+- Clear "Why it matters", "How it works", analogies for newcomers
+- Tables, ASCII diagrams
+- Runnable Rust (and Python where helpful) examples
+- Keep technical terms for mental mapping while explaining them simply
+
+Start with `topics/11_advanced_rust_data_structures/README.md` and its `demo_code/`.
+
+See also `topics/11_advanced_rust_data_structures/gaps_and_nice_to_haves.md` for the bigger picture.

@@ -1,0 +1,9 @@
+[package]
+name = "hft-lob-structures"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Using ahash for fast symbol lookup in the demo. In real systems you might use a perfect hash or fxhash.
+ahash = "0.8"
+smallvec = "1.13"
