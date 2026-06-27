@@ -155,6 +155,50 @@ Even better in modern Spark: Use native Spark functions or Polars inside some UD
 **Strong claim**:
 "Built a Medallion lakehouse with Airflow orchestration and PySpark. Implemented custom salting for skewed joins, vectorized Pandas UDFs with Arrow, and multi-layer data quality validation that reduced bad data incidents by 90%."
 
+## Practical HFT Use Cases & Scenarios
+
+### Scenario 1: Skew-Resistant Medallion Pipeline for Tick Data Lake (Crypto MM)
+**Business Context**: Building daily features (imbalance, realized vol, order flow toxicity) from raw Binance tick data for 200+ symbols. The PySpark job for the Silver layer was straggling badly on 5-8 high-volume pairs (they accounted for ~70% of messages), causing the entire daily feature job to miss its SLA and delay strategy research.
+
+**Technical Challenge**: Classic data skew in market data; need to preserve exact sequence for correct book reconstruction; must support fast replay for backtesting 3 months of data; hot path needs to stay low-latency while cold analytics run heavy.
+
+**What We Did (How)**:
+- **Ingestion (Bronze)**: Rust hot path parser (zero-copy) wrote raw deltas + receive timestamps to partitioned Parquet (symbol/date/hour). Used append-only + simple seq per file.
+- **Silver Layer**: PySpark with custom partitioner + salting. For hot symbols we added a random salt (0-31) to the key during groupBy for book reconstruction, then unsalt + merge at the end. Used `repartitionByRange` on price for volume profiles.
+- **Vectorized UDFs**: Arrow-enabled Pandas UDFs (or Polars inside) for cleaning (gap detection, dedup via lastUpdateId).
+- **Gold Features**: Window functions + aggregations on top of reconstructed books. Watermarking in Structured Streaming version for near-real-time features.
+- **Orchestration**: Airflow with dynamic task mapping for symbols. Sensors waited for Bronze completeness. Separate DAG for backfill/replay.
+- **Hot/Cold Split**: Live normalized books published via Redis Streams / ring buffer for strategy (hot, low latency). Full historical + features went to the lake (cold).
+
+**ASCII Architecture (SDD)**:
+```
+[Binance Feeds] → [Rust Parser (hot)] → Bronze Parquet (S3)
+                                       ↓
+[Airflow Sensor] → PySpark Silver (salted + custom partitioner)
+                                       ↓ (Delta MERGE)
+Gold Features (Polars/ClickHouse) ←──┘
+   ↑ (replay from Parquet)
+Backtesting Engine
+```
+
+**Results**:
+- Job runtime: 4.5h → 47min (p99 job duration).
+- Skew stragglers eliminated; 99.8% of partitions finished within 30min of each other.
+- Replay accuracy: 100% match vs live state (validated with sequence numbers).
+- Bad data quarantined early; reduced downstream feature bugs by ~85%.
+
+**Gotchas & When NOT**:
+- Salting increased shuffle by ~15x on hot symbols — we mitigated with broadcast for small lookups.
+- Don't use full Spark for the absolute hot path (use Rust ring buffer instead).
+- Alternative: If scale is moderate, pure Polars + DuckDB on a fat VM can be simpler and faster to iterate than Spark.
+
+**Interview Talking Points**:
+- "We treated the live book reconstruction as hot path (low latency, exactly-once via seq) and the feature computation as cold (scale + analytics)."
+- "Catalyst + Tungsten made the salted aggregates fast once we fixed the partitioning."
+
+### Scenario 2: Airflow + Stateful Streaming for Real-time Risk Aggregation
+(Details on maintaining per-venue inventory + cross-venue net exposure with exactly-once semantics under high fill rates, using mapGroupsWithState + watermarking, feeding both real-time alerts and daily PnL.)
+
 ## Interview Preparation Tips for This Area
 
 Prepare 2-3 detailed stories:

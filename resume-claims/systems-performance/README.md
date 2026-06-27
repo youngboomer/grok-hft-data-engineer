@@ -158,6 +158,75 @@ Example ASCII for a hybrid system:
 - "How would you profile and optimize a system that's fast in tests but has bad p99 in production under load?"
 - Be ready to discuss tradeoffs between Rust, C++, Go, Python for different parts of the system.
 
+## Practical HFT Use Cases & Scenarios
+
+These are rich, interview-ready examples drawn from typical crypto HFT market making / data pipeline work. Use them to build your own stories. Each includes the learning style breakdown (Why/What/How/Applicability).
+
+### Scenario 1: Zero-Copy Market Data Ingestion Pipeline (Hot Path Critical)
+**Business Context**: A crypto market maker ingests Binance BTCUSDT depth@100ms + aggTrade at 8k-25k msgs/sec. The Python strategy layer for quoting + imbalance signals was adding 1.2-3ms p99 latency due to parsing and serialization, causing the bot to get picked off during liquidations.
+
+**Technical Challenge**: High burst rates + reconnects; GIL contention; unnecessary copies between network buffer and feature computation; need deterministic replay for backtesting.
+
+**What We Did (How)**:
+- Built a Rust parser using `bytes::Bytes` for zero-copy slicing of the WS frame + manual offset parsing (no serde).
+- Exposed via PyO3/Maturin as a function that returns Arrow RecordBatch directly (zero-copy handoff).
+- On Python side: Polars lazy DataFrame for vectorized imbalance calc (`rolling_mean`, custom expressions).
+- GIL released during Rust work (`Python::allow_threads`).
+- Added seqlock atomic snapshot for "latest top-of-book" view so strategy readers never block the parser.
+- Cold path: Append raw frames + normalized batches to partitioned Parquet via memmap for fast replay.
+
+**ASCII Data Flow (DFD)**:
+```
+[Binance WS] → [Rust Parser Thread (pinned)] ──zero-copy──▶ [Arrow Batch]
+                                                     │
+                              Atomic Snapshot (seqlock) ◀──┘
+                                                     │
+                              [Python Strategy (Polars lazy)] → Quotes
+                                                     │ (sampled)
+                              [Cold: Parquet Writer + Replay Engine]
+```
+
+**Results & Metrics**:
+- p99 tick-to-feature latency: 1.8ms → 62µs (30x improvement).
+- Zero message loss in 4 simulated 10x bursts (replay validated).
+- Backtest speed: 12x real-time on historical tick data.
+
+**Gotchas & Tradeoffs**:
+- Initial PyO3 boundary had hidden copies (fixed with `PyBytes` + Arrow).
+- Holding GIL during any Python object creation in hot loop killed it.
+- When NOT to do this: If the hot path is simple and dev velocity matters more than 100µs (pure Polars can be "fast enough" for many mid-frequency systems).
+- Alternative considered: Pure Rust strategy (too much rewrite); Cython (slower to develop, less safe).
+
+**Interview Talking Points**:
+- "The hot path parser never allocates after init and publishes via atomic snapshot so the cold Python analytics layer can't stall it."
+- "We treated reconnect + gap handling as a cold path responsibility — hot path only consumed clean frames."
+
+### Scenario 2: Hybrid Profiling & Optimization Under Burst Load
+**Context**: Production p99 for data ingestion spiked to 4ms only during volatility (normal was 80µs). Flamegraphs showed allocator pressure + one hot function.
+
+**Approach**:
+- Used `py-spy`, `perf`, `cargo flamegraph` + custom atomic histograms (from topic 09 style).
+- Identified accidental `Vec` clones on every update + Python object creation in loop.
+- Replaced with pre-allocated SmallVec + object pool + Rust-side aggregation.
+- Added false-sharing fix with `#[repr(align(64))]`.
+
+**Lessons**: Always measure distributions under synthetic bursts, not averages. "Fast in quiet testing" is a lie in HFT.
+
+## Low-Latency Data Streams & System Design (Expanded)
+
+(Existing content +) Always separate hot path (predictable, minimal work, often Rust) from cold path (storage, heavy analytics, Python OK).
+
+Example ASCII for a hybrid system:
+```
+[Network / ZMQ] → [Rust Zero-Copy Parser (hot thread, pinned)] → Atomic Snapshot
+                                                      ↓ (via ring buffer)
+[Python Strategy (Polars/Pandas lazy)] ← reads latest state (non-blocking)
+                                                      ↓
+[FastAPI / Rust OMS] → [Redis Streams] for durability & cross-service
+```
+
 ## Summary for Resume Claims
 You should be able to say:
 "I used Rust via PyO3/Maturin to implement zero-copy parsing and state machines for low-latency streams. This reduced end-to-end latency by >10x compared to pure Python while integrating cleanly with our PySpark and Polars analytics layers. I profiled using perf and py-spy, identified allocation and GIL contention, and applied pre-allocation + GIL release patterns."
+
+**Stronger version with scenario**: "In our crypto MM, the ingestion-to-signal path was the bottleneck during bursts. We built a Rust hot path parser with zero-copy + lock-free publish (seqlock atomic snapshots) exposed via PyO3. p99 went from 1.8ms to 62µs; we survived 10x rate spikes with zero loss. The Python side stayed for feature engineering using the Arrow handoff."

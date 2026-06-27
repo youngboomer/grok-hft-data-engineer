@@ -68,6 +68,22 @@ Strong answer covers attribute limits, sampling, exemplar support, and careful s
 **Interview Talking Point**:
 "I instrumented services with OpenTelemetry and exported to both Prometheus (for custom SLOs and cost control) and New Relic (for rich APM traces and error analysis). This gave us the best of both worlds."
 
+## Practical HFT Use Cases & Scenarios
+
+### Scenario: Observability for a Hybrid Low-Latency Data Pipeline
+**Context**: A Rust hot path feeds Python analytics. During bursts we saw "data lag" alerts but couldn't tell if it was parser, ring buffer, boundary, or downstream.
+
+**Solution**:
+- OpenTelemetry spans across the Rust/Python boundary (using PyO3 + OTel Python SDK).
+- Custom metrics: p99 "tick-to-publish" (Rust), "publish-to-feature" (Python Polars), data quality (sequence gaps, null rates).
+- Exemplars in Prometheus histograms to correlate high latency with specific symbols or bursts.
+- Grafana dashboard with burn rate for freshness SLO (e.g., 99.9% of ticks processed within 5ms).
+- New Relic for distributed traces when debugging reconnect storms.
+
+**Hot/Cold**: Hot metrics must be extremely low-overhead (atomics + histograms updated in the hot thread). Cold: full trace export and dashboarding.
+
+**Result**: Could immediately see that the Python boundary was the culprit during high cardinality symbols. MTTD went from "hours of guessing" to "minutes with a dashboard".
+
 ## SLOs, SLIs, and Error Budgets
 
 You should be comfortable discussing:

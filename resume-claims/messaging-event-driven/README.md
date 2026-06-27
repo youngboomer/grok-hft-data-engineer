@@ -146,6 +146,46 @@ Most commonly implemented by RabbitMQ.
 | Kafka          | Low         | Very High  | Per partition | Very High      | High                   | Large scale event backbone   |
 | WebSockets     | Low         | None       | Per conn      | Medium (w/ LB) | Medium                 | Real-time client comms       |
 
+## Practical HFT Use Cases & Scenarios
+
+### Scenario: Low-Latency Hot-Path Event Bus for Market Making Risk
+**Business Context**: In a crypto MM, the Rust feed handler normalizes ticks into an internal order book and risk state. Multiple consumers need this state: Python quoting strategy (needs <100µs updates), real-time risk engine (inventory skew + exposure), and logging/audit. During liquidation cascades (high message rate + many partial fills), we saw duplicate risk updates and occasional missed skew signals, leading to over-hedging.
+
+**Challenge**: Producer must never block; need fan-out with backpressure; exactly-once or at-least-once with dedup for fills; mix of in-process (fast) and cross-process (durable) consumers; hot path must survive reconnects without data loss.
+
+**Solution (How)**:
+- **Hot path**: Rust parser publishes normalized events to a lock-free SPSC/MPSC ring buffer (or custom Disruptor-style with sequence cursors). Consumers read non-blocking.
+- **Cross-service**: Redis Streams (or ZMQ PUSH/PULL with custom proxy) for durability. Used outbox pattern in the book updater: write to local log + stream atomically.
+- **Idempotency**: Every event carries exchange seq + client order id. Consumers use a small in-memory set or Redis SETNX for dedup on reconnect.
+- **Backpressure**: Bounded queues; strategy drops non-critical updates rather than letting queues grow (producer stays fast).
+- **Cold path**: Full stream also lands in Kafka/Redpanda for the analytics lake and replay.
+
+**ASCII DFD**:
+```
+Rust Feed + Book Updater (hot)
+        │ (lock-free ring buffer)
+        ├──▶ Strategy (Python, low-lat)
+        ├──▶ Risk Engine (inventory)
+        └──▶ Redis Streams (durable)
+                     │
+                     ▼ (outbox + dedup)
+             Analytics / Replay (cold)
+```
+
+**Results**:
+- Hot path publish latency p99 stayed <40µs even at 20k msgs/sec.
+- Zero duplicate risk updates after reconnects (validated with sequence replay).
+- Over-hedging incidents dropped to zero in the next two liquidation events.
+
+**Gotchas**:
+- Redis Streams consumer groups have rebalancing cost — we used manual claiming for critical consumers.
+- Don't put complex logic in the hot ring buffer consumer; keep it to "update local view + decide to forward".
+- When NOT: For very high fan-out (hundreds of consumers) across machines, consider Aeron or NATS JetStream instead of Redis.
+
+**Interview Talking Points**:
+- "The producer only ever does a non-blocking publish to the ring buffer. All durability and fan-out logic lives after the hot path."
+- "We used sequence numbers + idempotency keys so reconnect logic could never create duplicate fills or risk signals."
+
 ## Interview Preparation
 
 **Must-be-able-to-draw**:
