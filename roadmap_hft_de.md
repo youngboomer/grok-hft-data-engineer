@@ -79,7 +79,7 @@ While doing these:
   - Answer all `questions_by_topic.md`.
   - Do the exercises in `rigorous_practice_exercises.md`.
   - Run through `mock_scenarios.md` (whiteboard or code them).
-- Work through **resume-claims/** (especially `INTERVIEW-STRATEGY.md` and the skill-area READMEs). Turn your project work into STAR stories.
+- Work through **resume-claims/** (especially `INTERVIEW-STRATEGY.md`, the skill-area READMEs, `case-studies/`, `exercises.md`, `war-stories-and-anti-patterns.md`, and `interview-cheatsheet.md`). Turn your project work into STAR stories. The case studies provide rich, ready-to-adapt practical HFT scenarios with metrics, diagrams, tradeoffs, and debugging stories.
 - **interview-questionnaire/** — Use the glossary, data structures, core/tricky questions for rapid revision.
 - **resources/curated_reading.md** — Prioritize the high-signal links.
 

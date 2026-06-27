@@ -40,6 +40,8 @@ Additional:
 - `INTERVIEW-STRATEGY.md` — How to turn this knowledge into compelling interview stories and resume claims
 - `case-studies/` — Rich end-to-end HFT data pipeline examples with diagrams and metrics
 - `exercises.md` — Hands-on build challenges to generate real artifacts and stories
+- `war-stories-and-anti-patterns.md` — Common HFT data pipeline failures + lessons (excellent for "tell me about a time it went wrong" questions)
+- `interview-cheatsheet.md` — Quick reference for interviews (key phrases, red flags, questions to ask)
 
 ## Resume Claim Strategy
 

@@ -214,10 +214,11 @@ grok-hft-data-engineer/
 │   └── mock_scenarios.md
 ├── resources/
 │   └── curated_reading.md
-└── resume-claims/                     # Interview strategy and skill deep-dives
-```
+└── resume-claims/                     # Interview strategy, skill deep-dives + rich practical case studies
+    └── case-studies/                   # End-to-end HFT data pipeline scenarios (with diagrams & metrics)
+    └── exercises.md                    # Hands-on challenges to build stories
 
-Each topic directory contains a detailed `README.md` and a `demo_code/` folder with runnable examples (Rust + Python where appropriate).
+Each topic directory contains a detailed `README.md` and a `demo_code/` folder with runnable examples (Rust + Python where appropriate). The resume-claims area now includes concrete case studies and exercises for practical interview prep.
 
 ## Getting Started Right Now
 
@@ -257,3 +258,5 @@ See:
 - `roadmap_hft_de.md` for the full recommended path.
 - `HFT_DATA_PIPELINES_PLAN.md` for details on these topics.
 - `topics/11_advanced_rust_data_structures/gaps_and_nice_to_haves.md` for non-Rust topics (FPGA, DPDK, etc.) and future extensions.
+- `resume-claims/war-stories-and-anti-patterns.md` for real-feeling HFT pipeline failure stories and common mistakes (great for interview prep).
+- `resume-claims/interview-cheatsheet.md` for quick interview reference (phrases, red flags, questions to ask back).
