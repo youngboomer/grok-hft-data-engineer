@@ -1,0 +1,9 @@
+[package]
+name = "tick-storage"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+arrow = "52"
+parquet = { version = "52", features = ["arrow"] }
+memmap2 = "0.9"

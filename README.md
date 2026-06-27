@@ -273,3 +273,12 @@ All content follows the same philosophy as the rest of the repo:
 Start with `topics/11_advanced_rust_data_structures/README.md` and its `demo_code/`.
 
 See also `topics/11_advanced_rust_data_structures/gaps_and_nice_to_haves.md` for the bigger picture.
+
+### New Topics Added (hft-data-pipelines branch)
+- 10. HFT Data Pipelines Architecture
+- 11. Advanced Rust Data Structures (ring buffers, LOBs, pools — deep from-scratch + references)
+- 12. Tick Data Management and Storage
+- 13. Lock-free Stream Processing (Disruptor-style)
+- 14. Analytical Data Pipelines (Arrow + Polars)
+
+Each includes runnable Rust (and Python) demos, full explanations, and coverage of gaps (FPGA, DPDK, etc. explained briefly).
